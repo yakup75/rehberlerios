@@ -13,7 +13,7 @@ struct SngineWebApp: App {
 }
 
 class AppDelegate: NSObject, UIApplicationDelegate {
-    static let oneSignalAppId = "" // Store your OneSignal App ID here
+    static let oneSignalAppId = "97260d23-8425-4dc3-8e79-bde79e7b77bf" // Store your OneSignal App ID here
     static var oneSignalUserId: String?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {

@@ -1,42 +1,18 @@
-workflows:
-  ios-app-store:
-    name: iOS App Store Yükleme
-    max_build_duration: 60
-    environment:
-      xcode: latest
-      vars:
-        XCODE_PROJECT: "SngineWeb.xcodeproj"
-        XCODE_SCHEME: "SngineWeb"
-        BUNDLE_ID: "turkiye.turistrehberleri.com"
-        APP_STORE_APP_ID: "6746189878"
-      secure:
-        APP_STORE_CONNECT_ISSUER_ID: EncryptedValueHere
-        APP_STORE_CONNECT_KEY_IDENTIFIER: EncryptedValueHere
-        APP_STORE_CONNECT_PRIVATE_KEY: EncryptedValueHere
-
-    scripts:
-      - name: Anahtarlık ve imzalama dosyalarının ayarlanması
-        script: |
-          keychain initialize
-          app-store-connect fetch-signing-files "$BUNDLE_ID" --type IOS_APP_STORE
-          xcode-project use-profiles
-
-      - name: Uygulamayı derle ve arşivle
-        script: |
-          xcode-project build-archive \
-            --project "$XCODE_PROJECT" \
-            --scheme "$XCODE_SCHEME"
-
-      - name: IPA dosyasını dışa aktar
-        script: |
-          xcode-project export-ipa
-
-    artifacts:
-      - build/ios/ipa/*.ipa
-
-    publishing:
-      app_store_connect:
-        issuer_id: $APP_STORE_CONNECT_ISSUER_ID
-        key_identifier: $APP_STORE_CONNECT_KEY_IDENTIFIER
-        private_key: $APP_STORE_CONNECT_PRIVATE_KEY
-        app_id: $APP_STORE_APP_ID
+ios-native:
+  environment:
+    vars:
+      BUNDLE_ID: "turkiye.turistrehberleri.com"
+      XCODE_WORKSPACE: "CodemagicSample.xcworkspace" # <-- Name of your Xcode workspace
+      XCODE_SCHEME: "CodemagicSample" # <-- Name of your Xcode scheme
+scripts:
+  # ...
+  - name: Build ipa for distribution
+    script: | 
+      xcode-project build-ipa \
+        --workspace "$CM_BUILD_DIR/$XCODE_WORKSPACE" \
+        --scheme "$XCODE_SCHEME"
+artifacts:
+  - build/ios/ipa/*.ipa
+  - /tmp/xcodebuild_logs/*.log
+  - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.app
+  - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM

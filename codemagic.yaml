@@ -38,5 +38,4 @@ workflows:
     publishing:
       app_store_connect:
         auth: integration
-        name: "Dil Maratonu"
         submit_to_testflight: true

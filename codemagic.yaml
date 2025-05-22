@@ -2,15 +2,12 @@ workflows:
   ios-workflow:
     name: iOS Workflow
     integrations:
-      app_store_connect: rehberler
+      app_store_connect: Dil Maratonu
     environment:
       vars:
         BUNDLE_ID: "turkiye.turistrehberleri.com"
-        APP_STORE_APPLE_ID: "6746189878" # Uygulama Apple ID'n
+        APP_STORE_APPLE_ID: "6746189878"
       xcode: latest
-      cocoapods: default
-      flutter: stable
-      node: latest
     scripts:
       - name: Set up keychain and provisioning profiles
         script: |

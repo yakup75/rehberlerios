@@ -1,6 +1,40 @@
 workflows:
-  ios-build:
-    name: iOS Build
+  ios-workflow:
+    name: iOS Workflow
+    integrations:
+      app_store_connect: Dil Maratonu
     environment:
       vars:
         BUNDLE_ID: "turkiye.turistrehberleri.com"
+        APP_STORE_APPLE_ID: "6746189878" # Uygulama Apple ID'n
+      xcode: latest
+      cocoapods: default
+      flutter: stable
+      node: latest
+    scripts:
+      - name: Set up keychain and provisioning profiles
+        script: |
+          keychain initialize
+          app-store-connect fetch-signing-files "$BUNDLE_ID" --type IOS_APP_STORE
+          keychain add-certificates
+
+      - name: Increment build number
+        script: |
+          cd $CM_BUILD_DIR
+          LATEST_BUILD_NUMBER=$(app-store-connect get-latest-app-store-build-number "$APP_STORE_APPLE_ID")
+          agvtool new-version -all $(($LATEST_BUILD_NUMBER + 1))
+
+      - name: Build IPA
+        script: |
+          xcode-project build-ipa \
+            --project "SngineWeb.xcodeproj" \
+            --scheme "SngineWeb" \
+            --export-method "app-store"
+
+    artifacts:
+      - build/ios/ipa/*.ipa
+
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true

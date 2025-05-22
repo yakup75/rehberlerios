@@ -1,37 +1,41 @@
 workflows:
   ios-workflow:
-    name: iOS Workflow
-    integrations:
-      app_store_connect: Dil Maratonu
+    name: Rehberler iOS Workflow
     environment:
       vars:
         BUNDLE_ID: "turkiye.turistrehberleri.com"
         APP_STORE_APPLE_ID: "6746189878"
       xcode: latest
     scripts:
-      - name: Set up keychain and provisioning profiles
+      - name: Set up keychain to be used for code signing using Codemagic CLI
         script: |
           keychain initialize
-          app-store-connect fetch-signing-files "$BUNDLE_ID" --type IOS_APP_STORE
+
+      - name: Fetch signing files from App Store Connect
+        script: |
+          app-store-connect fetch-signing-files "$BUNDLE_ID"             --type IOS_APP_STORE             --create
+
+      - name: Set up signing certificate
+        script: |
           keychain add-certificates
 
-      - name: Increment build number
+      - name: Set code signing settings on Xcode project
         script: |
-          cd $CM_BUILD_DIR
-          LATEST_BUILD_NUMBER=$(app-store-connect get-latest-app-store-build-number "$APP_STORE_APPLE_ID")
-          agvtool new-version -all $(($LATEST_BUILD_NUMBER + 1))
+          xcode-project use-profiles
 
-      - name: Build IPA
+      - name: Build IPA for distribution
         script: |
-          xcode-project build-ipa \
-            --project "SngineWeb.xcodeproj" \
-            --scheme "SngineWeb" \
-            --export-method "app-store"
+          xcode-project build-ipa             --project "SngineWeb.xcodeproj"             --scheme "SngineWeb"
 
     artifacts:
       - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+      - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM
 
     publishing:
       app_store_connect:
-        auth: integration
+        api_key:
+          key_id: $APP_STORE_CONNECT_KEY_IDENTIFIER
+          issuer_id: $APP_STORE_CONNECT_ISSUER_ID
+          private_key: $APP_STORE_CONNECT_PRIVATE_KEY
         submit_to_testflight: true

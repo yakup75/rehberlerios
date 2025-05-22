@@ -2,7 +2,7 @@ workflows:
   ios-workflow:
     name: iOS Workflow
     integrations:
-      app_store_connect: Dil Maratonu
+      app_store_connect: rehberler
     environment:
       vars:
         BUNDLE_ID: "turkiye.turistrehberleri.com"
